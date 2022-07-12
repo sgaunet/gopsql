@@ -1,0 +1,15 @@
+# https://taskfile.dev
+version: '3'
+vars:
+  BINFILE: gopsql
+
+tasks:
+  default:
+    cmds:
+      #- echo "{{.GREETING}}"
+      - go build .
+      - upx "{{.BINFILE}}"
+    # silent: true
+    method: checksum
+    generates:
+      - "{{.BINFILE}}"
