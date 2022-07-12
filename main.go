@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -92,11 +93,12 @@ func main() {
 	// Print column name
 	for i := 0; i < len(colNames); i++ {
 		colPtrs[i] = &cols[i]
-		fmt.Printf("%s ", colNames[i])
+		// fmt.Printf("%s ", colNames[i])
 	}
-	fmt.Println()
+	// fmt.Println()
 	// end print columns
 
+	cpt := 0
 	for rows.Next() {
 		err = rows.Scan(colPtrs...)
 		if err != nil {
@@ -104,15 +106,26 @@ func main() {
 		}
 		for i, col := range cols {
 			myMap[colNames[i]] = col
-			fmt.Printf("%v ", col)
+			if _, ok := col.(time.Time); ok {
+				fmt.Printf("%s", col.(time.Time).Format("2006-02-01 15:04:05-07"))
+			} else {
+				fmt.Printf("%v", col)
+			}
+			if i != len(cols)-1 {
+				fmt.Printf("|")
+			}
 		}
 		fmt.Println()
+		cpt++
 		// Do something with the map
 		// for key, val := range myMap {
 		// fmt.Printf("Key: %15s    Value Type: %10s   Value: %v\n", key, reflect.TypeOf(val), val)
 		// }
+		// Ex avec tabwriter : https://betterprogramming.pub/dynamic-sql-query-with-go-8aeedaa02907
 	}
 
+	// fmt.Printf("(%d rows)", cpt)
+	os.Exit(0)
 	fmt.Println("***************************")
 	b := new(bytes.Buffer)
 	enc := yaml.NewEncoder(b)
